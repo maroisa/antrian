@@ -1,4 +1,7 @@
-const ws = new WebSocket("ws://" + window.location.host + "/loket/ws");
+const wsProtocols = window.location.protocol == "http:" ? "ws:" : "wss:";
+const ws = new WebSocket(
+    wsProtocols + "//" + window.location.host + "/loket/ws",
+);
 let data = {};
 let refresh = () => {};
 
