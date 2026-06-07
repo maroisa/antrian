@@ -1,0 +1,32 @@
+{{ template "_layout.html" . }}
+
+{{ define "title" }}Loket {{ .loket }}{{ end }}
+
+{{ define "content" }}
+<main class="flex flex-col-reverse md:flex-row">
+    <div class="grow w-full p-2 bg-{{.}} border-2">
+        <div class="bg-white p-2 shadow-md h-full border-2">
+            <p>
+                ini adalah Loket {{ .loket }}
+            </p>
+            <button onclick="nextAntrian('{{.loket}}')" class="btn">Antrian Selanjutnya</button>
+        </div>
+    </div>
+    {{ template "_loket_view.html" . }}
+</main>
+<script>
+data = JSON.parse({{.data}})
+refresh = () => {
+    const listLoket = document.getElementById("listLoket")
+    listLoket.innerHTML = ""
+    Object.entries(data).forEach(item => {
+        const div = document.createElement("div")
+        div.className = "flex justify-center items-center border-2 bg-" + item[0]
+        div.innerText = item[0] + item[1]
+        listLoket.appendChild(div)
+    })
+}
+
+refresh()
+</script>
+{{ end }}

@@ -1,0 +1,30 @@
+{{ template "_layout.html" . }}
+
+{{ define "title" }}Tampilan Loket{{ end }}
+{{ define "content" }}
+<main class="flex justify-center items-center p-10 ">
+    <div class="h-full w-full grid grid-cols-2 max-w-6xl gap-4" id="listLoket">
+        <div class="border-4 bg-A flex justify-center items-center font-bold text-6xl">A</div>
+        <div class="border-4 bg-B flex justify-center items-center font-bold text-6xl">B</div>
+        <div class="border-4 bg-C flex justify-center items-center font-bold text-6xl">C</div>
+        <div class="border-4 bg-D flex justify-center items-center font-bold text-6xl">D</div>
+        <div class="border-4 bg-E flex justify-center items-center font-bold text-6xl">E</div>
+        <div class="border-4 bg-F flex justify-center items-center font-bold text-6xl">F</div>
+    </div>
+</main>
+<script>
+data = JSON.parse({{.}})
+refresh = () => {
+    const listLoket = document.getElementById("listLoket")
+    listLoket.innerHTML = ""
+    Object.entries(data).forEach(item => {
+        const div = document.createElement("div")
+        div.className = "border-4 flex justify-center items-center font-bold text-6xl bg-" + item[0]
+        div.innerText = item[0] + item[1]
+        listLoket.appendChild(div)
+    })
+}
+
+refresh()
+</script>
+{{ end }}
