@@ -6,8 +6,8 @@ Ini adalah website antrian sederhana
 - Go >= 1.26
 
 ## Cara Menjalankan
-
 ```bash
+# -- Lokal --
 git clone https://github.com/maroisa/antrian.git && cd antrian
 go mod download
 
@@ -18,12 +18,16 @@ cd ..
 
 go build -o antrian .
 ./antrian
-```
 
-### Docker
-```bash
+# -- atau dengan Docker --
 docker compose up -d --build
 ```
+
+> [!NOTE]
+> Untuk pemutar suara, harus menggunakan Chrome dengan cara:
+> - Masuk Chrome
+> - isi URL dengan `chrome://settings/content/sound`
+> - Pada bagian `Allowed to play sound`, Add host server seperti `localhost:3000`
 
 ## Cara Development
 
