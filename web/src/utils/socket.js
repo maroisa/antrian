@@ -12,9 +12,10 @@ const [loketData, setLoketData] = createSignal({
 const [newLoket, setNewLoket] = createSignal(null);
 
 const wsProtocols = window.location.protocol == "http:" ? "ws:" : "wss:";
-const ws = new WebSocket(
-    wsProtocols + "//" + import.meta.env.VITE_API_HOST + "/loket/ws",
-);
+const host = import.meta.env.VITE_API_HOST
+    ? import.meta.env.VITE_API_HOST
+    : window.location.host;
+const ws = new WebSocket(wsProtocols + "//" + host + "/loket/ws");
 
 ws.onopen = () => console.log("ws connected");
 ws.onclose = () => {
