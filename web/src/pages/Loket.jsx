@@ -62,7 +62,7 @@ export default function Loket() {
                 <For each={Object.entries(loketData())}>
                     {(item) => (
                         <div
-                            class={`border-4 rounded-lg shadow-lg flex justify-center items-center font-bold text-6xl bg-${item[0]}`}
+                            class={`border-4 rounded-lg shadow-lg flex justify-center items-center font-bold text-4xl md:text-6xl bg-${item[0]}`}
                         >
                             {item[0]}
                             {item[1]}
