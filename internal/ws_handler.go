@@ -27,6 +27,7 @@ func (s *Server) WSHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("user baru terkoneksi")
 
 	ctx := r.Context()
+	s.Broadcast(ctx)
 
 	for {
 		msgType, msg, err := c.Read(ctx)

@@ -1,25 +1,26 @@
 {
-  "name": "web",
-  "version": "1.0.0",
+  "name": "vite-template-solid",
+  "version": "0.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "dev": "tailwindcss -i ./assets/input.css -o ./assets/output.css --watch --minify"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "^11.0.9",
-      "onFail": "download"
-    }
-  },
   "type": "module",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "solid-devtools": "^0.34.3",
+    "typescript": "^5.7.2",
+    "vite": "^7.1.4",
+    "vite-plugin-solid": "^2.11.8"
+  },
   "dependencies": {
-    "@tailwindcss/cli": "^4.3.0",
-    "daisyui": "^5.5.20",
+    "@solidjs/router": "^0.16.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "daisyui": "^5.5.21",
+    "solid-js": "^1.9.5",
     "tailwindcss": "^4.3.0"
   }
 }

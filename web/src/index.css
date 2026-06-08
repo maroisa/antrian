@@ -18,6 +18,7 @@
 @layer base {
     html,
     body,
+    #root,
     main {
         @apply w-full h-full;
     }
