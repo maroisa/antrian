@@ -10,7 +10,7 @@ export default function LoketMini() {
             <For each={Object.entries(loketData())}>
                 {(item) => (
                     <div
-                        class={`flex justify-center items-center border-2 bg-${item[0]}`}
+                        class={`flex justify-center items-center border-2 border-b-0 md:border-l-0 bg-${item[0]}`}
                     >
                         {item[0]}
                         {item[1]}

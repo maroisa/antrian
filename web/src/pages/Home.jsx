@@ -6,10 +6,10 @@ import { Monitor } from "../components/Svg";
 export default function HomeView() {
     return (
         <div class="h-full w-full flex justify-center items-center p-4">
-            <div class="flex flex-col gap-8 p-8 bg-base-100 rounded-lg shadow-lg w-full max-w-lg">
+            <div class="flex flex-col gap-8 p-8 bg-base-100 rounded-lg shadow-lg w-full max-w-lg border-2 border-black">
                 <a
                     href="/loket"
-                    class="btn btn-soft text-xl font-bold py-8 w-full flex gap-2"
+                    class="btn border-2 border-black rounded-lg btn-soft text-xl font-bold py-8 w-full flex gap-2"
                 >
                     <Monitor className="size-6 md:size-8" />
                     Tampilan Penuh
@@ -18,7 +18,7 @@ export default function HomeView() {
                     <For each={Object.keys(loketData())}>
                         {(item) => (
                             <A
-                                class={`btn shadow-lg rounded-lg bg-${item}`}
+                                class={`btn border-2 border-black shadow-lg rounded-lg bg-${item}`}
                                 href={`/loket/${item}`}
                             >
                                 Loket {item}

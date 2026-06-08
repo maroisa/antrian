@@ -9,10 +9,7 @@ export default function LoketItem() {
         <main class="flex flex-col-reverse md:flex-row">
             <div class={`grow w-full p-2 border-2 bg-${params.kode}`}>
                 <div class="bg-white p-2 shadow-md h-full border-2 ">
-                    <A
-                        href="/"
-                        class={`btn rounded-none border-2 border-black bg-${params.kode}`}
-                    >
+                    <A href="/" class="btn">
                         <ChevronLeft className="size-4" />
                         Kembali
                     </A>
