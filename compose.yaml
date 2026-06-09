@@ -1,0 +1,11 @@
+services:
+  db:
+    image: mariadb:lts
+    restart: unless-stopped
+    ports:
+      - 3310:3306
+    environment:
+      MARIADB_USER: budi
+      MARIADB_PASSWORD: budi123
+      MARIADB_DATABASE: antrian
+      MARIADB_ROOT_PASSWORD: blank
