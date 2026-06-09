@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-    themes: light --default;
+    themes: business --default;
 }
 
 @layer base {
@@ -10,5 +10,15 @@
     main,
     .hw-full {
         @apply w-full h-full;
+    }
+
+    #app {
+        @apply flex flex-col;
+    }
+}
+
+@layer components {
+    .nav-link.router-link-active {
+        @apply btn-primary border-2;
     }
 }
