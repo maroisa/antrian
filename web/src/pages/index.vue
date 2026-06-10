@@ -1,7 +1,4 @@
 <script setup>
-import { PlusCircleIcon } from "@heroicons/vue/20/solid";
-import { ComputerDesktopIcon } from "@heroicons/vue/24/solid";
-import { SpeakerWaveIcon } from "@heroicons/vue/24/solid";
 import NAV from "../nav";
 </script>
 

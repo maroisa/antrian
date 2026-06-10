@@ -16,7 +16,7 @@ const NAV = [
         icon: PlusCircleIcon,
     },
     {
-        to: "/tampilan",
+        to: "/view",
         name: "Tampilan",
         color: "secondary",
         icon: ComputerDesktopIcon,
