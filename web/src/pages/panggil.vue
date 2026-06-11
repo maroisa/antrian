@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from "vue";
-import AntrianHeader from "../../components/AntrianHeader.vue";
-import { hasDipanggil, lastLoket } from "../../utils/state";
+import AntrianHeader from "../components/AntrianHeader.vue";
+import { hasDipanggil, lastLoket } from "../utils/state";
 import { SpeakerWaveIcon } from "@heroicons/vue/24/outline";
 import { CheckBadgeIcon } from "@heroicons/vue/24/outline";
 

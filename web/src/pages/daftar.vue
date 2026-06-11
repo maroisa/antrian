@@ -1,8 +1,7 @@
 <script setup>
 import { PrinterIcon } from "@heroicons/vue/24/outline";
-import AntrianHeader from "../../components/AntrianHeader.vue";
-import { onMounted } from "vue";
-import { lastLoket } from "../../utils/state.js";
+import AntrianHeader from "../components/AntrianHeader.vue";
+import { lastLoket } from "../utils/state.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 

@@ -11,12 +11,15 @@ import (
 
 func (s *Server) Routes() {
 	s.mux.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World"))
+		w.Write([]byte("OK"))
 	})
+
+	s.mux.Get("/ws", s.WSHandler)
 
 	s.mux.Get("/loket/{id:[0-9]+}/baru", s.NewAntrian)
 	s.mux.Get("/loket/{id:[0-9]+}", s.GetAntrian)
 	s.mux.Get("/antrian/{id:[0-9]+}/selesai", s.AntrianSelesai)
+	s.mux.Get("/antrian/{id:[0-9]+}/panggil", s.AntrianDipanggil)
 }
 
 func (s *Server) GetAntrian(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +52,11 @@ func (s *Server) NewAntrian(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, map[string]string{
 		"message": "Berhasil membuat antrian baru",
 	})
+}
+
+func (s *Server) AntrianDipanggil(w http.ResponseWriter, r *http.Request) {
+	paramID := chi.URLParam(r, "id")
+	s.Broadcast(r.Context(), paramID)
 }
 
 func (s *Server) AntrianSelesai(w http.ResponseWriter, r *http.Request) {

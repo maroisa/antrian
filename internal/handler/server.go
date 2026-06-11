@@ -5,19 +5,24 @@ import (
 	"antrian/internal/utils"
 	"log"
 	"net/http"
+	"sync"
 
+	"github.com/coder/websocket"
 	"github.com/go-chi/chi/v5"
 )
 
 type Server struct {
-	mux *chi.Mux
-	db  *db.Queries
+	mux     *chi.Mux
+	db      *db.Queries
+	mu      sync.Mutex
+	clients map[*websocket.Conn]bool
 }
 
 func NewServer(db *db.Queries) *Server {
 	return &Server{
-		mux: chi.NewRouter(),
-		db:  db,
+		mux:     chi.NewRouter(),
+		db:      db,
+		clients: make(map[*websocket.Conn]bool),
 	}
 }
 
