@@ -1,11 +1,11 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import AntrianHeader from "../components/AntrianHeader.vue";
 import { hasDipanggil, lastLoket } from "../utils/state";
 import { SpeakerWaveIcon } from "@heroicons/vue/24/outline";
 import { CheckBadgeIcon } from "@heroicons/vue/24/outline";
+import { get } from "../utils/api";
 
-const API_URL = import.meta.env.VITE_API_URL;
 const isLoading = ref(true);
 
 const loketData = reactive([]);
@@ -17,24 +17,34 @@ onMounted(() => {
 });
 
 async function refresh(loketID) {
-    const res = await fetch(API_URL + "loket/" + loketID);
+    const [res, err] = await get("loket", loketID);
+    if (err) {
+        console.log(err);
+        return;
+    }
+
     const json = await res.json();
     lastLoket.value = loketID;
     Object.assign(loketData, json ? json : []);
 }
 
 async function handleAntrian(action, antrianItem) {
-    if (action == "panggil") hasDipanggil.value = true;
-    else if (action == "selesai") {
-        const res = await fetch(
-            API_URL + "antrian/" + antrianItem.ID + "/selesai",
-        );
-        if (res.ok) {
-            const json = await res.json();
-            alert("Antrian no. urut " + antrianItem.Urut + " telah selesai");
-            refresh(lastLoket.value);
-            hasDipanggil.value = false;
+    if (action == "panggil") {
+        const [res, err] = await get("antrian", antrianItem.ID, "panggil");
+        if (err) console.log(err);
+
+        hasDipanggil.value = true;
+    } else if (action == "selesai") {
+        const [res, err] = await get("antrian", antrianItem.ID, "selesai");
+        if (err) {
+            console.log(err);
+            return;
         }
+
+        const json = await res.json();
+        alert("Antrian no. urut " + antrianItem.Urut + " telah selesai");
+        refresh(lastLoket.value);
+        hasDipanggil.value = false;
     }
 }
 
@@ -78,7 +88,7 @@ async function getLoket(loketID) {
                     </tr>
                 </thead>
                 <tbody>
-                    <template v-if="loketData[0]">
+                    <template v-if="loketData.length">
                         <tr>
                             <td>{{ loketData[0].Urut }}</td>
                             <td class="flex gap-4">

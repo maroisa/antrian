@@ -2,8 +2,7 @@
 import { PrinterIcon } from "@heroicons/vue/24/outline";
 import AntrianHeader from "../components/AntrianHeader.vue";
 import { lastLoket } from "../utils/state.js";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { get } from "../utils/api.js";
 
 async function register(event) {
     event.preventDefault();
@@ -11,12 +10,13 @@ async function register(event) {
     const loket = formData.get("loket");
     lastLoket.value = loket;
 
-    const res = await fetch(API_URL + "loket/" + loket + "/baru");
-
-    if (res.ok) {
-        const json = await res.json();
-        alert(json.message);
+    const [res, err] = await get("loket", loket, "baru");
+    if (err) {
+        console.log(err);
+        return;
     }
+
+    alert("Antrian baru telah terdaftar pada loket " + loket);
 }
 </script>
 

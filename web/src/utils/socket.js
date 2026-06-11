@@ -2,23 +2,32 @@ const wsProtocols = window.location.protocol == "http:" ? "ws:" : "wss:";
 const host = import.meta.env.VITE_API_HOST
     ? import.meta.env.VITE_API_HOST
     : window.location.host;
-const ws = new WebSocket(wsProtocols + "//" + host + "/loket/ws");
 
-ws.onopen = () => console.log("ws connected");
-ws.onclose = () => {
-    console.log("ws disconnected");
-    setTimeout(() => window.location.reload(), 1000);
-};
+export default function useWebSocket(socket, messageFn) {
+    return new Promise((resolve, reject) => {
+        const ws = new WebSocket(wsProtocols + "//" + host + "/ws");
 
-ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    const changedKey = Object.keys(data).find(
-        (key) => loketData()[key] !== data[key],
-    );
-    const result = changedKey ? changedKey + data[changedKey] : "C0";
-    setNewLoket(result);
+        ws.onopen = () => {
+            socket.value = ws;
+            console.log("ws connected");
+            resolve();
+        };
 
-    setLoketData(data);
-};
+        ws.onerror = (err) => {
+            socket.value = null;
+            console.log("ws error", err);
+            reject(err);
+        };
 
-export { ws as socket, loketData, newLoket };
+        ws.onclose = () => {
+            socket.value = null;
+            console.log("ws disconnected");
+            reject();
+        };
+
+        ws.onmessage = (event) => {
+            let data = JSON.parse(event.data);
+            messageFn(data);
+        };
+    });
+}
