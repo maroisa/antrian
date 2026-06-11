@@ -7,6 +7,10 @@ from antrian
 where date(tanggal) = current_date()
   and antrian.loket = sqlc.arg(loket);
 
+-- name: GetAntrian :one
+select id, loket, urut from antrian
+where tanggal = current_date() and id = ?;
+
 -- name: ListAntrian :many
 select id,loket, urut from antrian
 where tanggal = current_date() and loket = ? and panggil = 0

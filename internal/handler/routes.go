@@ -55,8 +55,18 @@ func (s *Server) NewAntrian(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) AntrianDipanggil(w http.ResponseWriter, r *http.Request) {
-	paramID := chi.URLParam(r, "id")
-	s.Broadcast(r.Context(), paramID)
+	id := chi.URLParam(r, "id")
+	paramID, err := strconv.Atoi(id)
+	if err != nil {
+		panic(err)
+	}
+
+	res, err := s.db.GetAntrian(r.Context(), int32(paramID))
+	if err != nil {
+		panic(err)
+	}
+
+	s.Broadcast(r.Context(), res)
 }
 
 func (s *Server) AntrianSelesai(w http.ResponseWriter, r *http.Request) {

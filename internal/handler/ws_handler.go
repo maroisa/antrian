@@ -34,7 +34,7 @@ func (s *Server) WSHandler(w http.ResponseWriter, r *http.Request) {
 	s.mu.Unlock()
 }
 
-func (s *Server) Broadcast(ctx context.Context, msg string) {
+func (s *Server) Broadcast(ctx context.Context, msg any) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

@@ -9,6 +9,24 @@ import (
 	"context"
 )
 
+const getAntrian = `-- name: GetAntrian :one
+select id, loket, urut from antrian
+where tanggal = current_date() and id = ?
+`
+
+type GetAntrianRow struct {
+	ID    int32
+	Loket int32
+	Urut  int32
+}
+
+func (q *Queries) GetAntrian(ctx context.Context, id int32) (GetAntrianRow, error) {
+	row := q.db.QueryRowContext(ctx, getAntrian, id)
+	var i GetAntrianRow
+	err := row.Scan(&i.ID, &i.Loket, &i.Urut)
+	return i, err
+}
+
 const insertAntrian = `-- name: InsertAntrian :exec
 insert into antrian (loket, urut)
 select
