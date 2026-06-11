@@ -12,7 +12,7 @@ const NAV = [
     {
         to: "/daftar",
         name: "Daftar",
-        color: "neutral",
+        color: "success",
         icon: PlusCircleIcon,
     },
     {

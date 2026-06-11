@@ -1,12 +1,14 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import AntrianHeader from "../../components/AntrianHeader.vue";
-import lastLoket from "../../utils/state";
+import { hasDipanggil, lastLoket } from "../../utils/state";
 import { SpeakerWaveIcon } from "@heroicons/vue/24/outline";
 import { CheckBadgeIcon } from "@heroicons/vue/24/outline";
 
+const API_URL = import.meta.env.VITE_API_URL;
 const isLoading = ref(true);
-const loketData = ref([]);
+
+const loketData = reactive([]);
 
 onMounted(() => {
     if (lastLoket.value != 0) {
@@ -15,11 +17,25 @@ onMounted(() => {
 });
 
 async function refresh(loketID) {
-    const API_URL = import.meta.env.VITE_API_URL;
     const res = await fetch(API_URL + "loket/" + loketID);
     const json = await res.json();
     lastLoket.value = loketID;
-    loketData.value = json ? json : [];
+    Object.assign(loketData, json ? json : []);
+}
+
+async function handleAntrian(action, antrianItem) {
+    if (action == "panggil") hasDipanggil.value = true;
+    else if (action == "selesai") {
+        const res = await fetch(
+            API_URL + "antrian/" + antrianItem.ID + "/selesai",
+        );
+        if (res.ok) {
+            const json = await res.json();
+            alert("Antrian no. urut " + antrianItem.Urut + " telah selesai");
+            refresh(lastLoket.value);
+            hasDipanggil.value = false;
+        }
+    }
 }
 
 async function getLoket(loketID) {
@@ -32,26 +48,22 @@ async function getLoket(loketID) {
 <template>
     <AntrianHeader />
     <main class="p-4 w-full max-w-4xl mx-auto">
-        <div>
-            <select
-                class="select"
-                v-on:change="
-                    (e) => {
-                        getLoket(e.target.value);
-                        loketID = e.target.value;
-                    }
-                "
-            >
-                <option disabled :selected="lastLoket == 0">
-                    Pilih loket...
+        <select
+            class="select mb-10"
+            v-on:change="
+                (e) => {
+                    getLoket(e.target.value);
+                    loketID = e.target.value;
+                }
+            "
+        >
+            <option disabled :selected="lastLoket == 0">Pilih loket...</option>
+            <template v-for="v in Array(1, 2, 3, 4)">
+                <option :selected="lastLoket == v" :value="v">
+                    Loket {{ v }}
                 </option>
-                <template v-for="v in Array(1, 2, 3, 4)">
-                    <option :selected="lastLoket == v" :value="v">
-                        Loket {{ v }}
-                    </option>
-                </template>
-            </select>
-        </div>
+            </template>
+        </select>
         <div class="overflow-auto">
             <template v-if="!isLoading && loketData.length <= 0">
                 <p class="flex mb-4 justify-center items-center italic text-xl">
@@ -66,15 +78,26 @@ async function getLoket(loketID) {
                     </tr>
                 </thead>
                 <tbody>
-                    <template v-for="loketItem in loketData">
+                    <template v-if="loketData[0]">
                         <tr>
-                            <td>{{ loketItem.Urut }}</td>
+                            <td>{{ loketData[0].Urut }}</td>
                             <td class="flex gap-4">
-                                <button class="btn btn-info">
+                                <button
+                                    class="btn btn-info"
+                                    @click="
+                                        handleAntrian('panggil', loketData[0])
+                                    "
+                                >
                                     <SpeakerWaveIcon class="size-6" />
                                     <span>Panggil</span>
                                 </button>
-                                <button class="btn btn-success">
+                                <button
+                                    @click="
+                                        handleAntrian('selesai', loketData[0])
+                                    "
+                                    class="btn btn-success"
+                                    :disabled="!hasDipanggil"
+                                >
                                     <CheckBadgeIcon class="size-6" />
                                     <span>Selesai</span>
                                 </button>

@@ -3,6 +3,8 @@
     themes: business --default;
 }
 
+@source inline("{btn,bg,text}-{primary,secondary,neutral}");
+
 @layer base {
     html,
     body,
