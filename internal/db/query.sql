@@ -1,3 +1,9 @@
+-- name: CreateUser :exec
+insert into user (nama, password) values (?, ?);
+
+-- name: GetUser :one
+select * from user where nama = ? limit 1;
+
 -- name: InsertAntrian :execresult
 insert into antrian (urut)
 select
@@ -12,10 +18,16 @@ select max(urut) as urut, loket from antrian where tanggal = current_date() and 
 select id, urut, loket, DATE_FORMAT(tanggal, '%Y-%m-%d') AS tanggal from antrian
 where tanggal = current_date() and id = ?;
 
+-- name: MintaAntrian :one
+select id, urut, loket, DATE_FORMAT(tanggal, '%Y-%m-%d') AS tanggal from antrian
+where tanggal = current_date() and panggil = 0 and loket = 0 order by id limit 1;
+
+-- name: AmbilAntrian :exec
+update antrian set loket = ? where id = ?;
+
 -- name: ListAntrian :many
-select id,loket, urut from antrian
-where tanggal = current_date() and loket = ? and panggil = 0
-order by urut;
+select id, urut, loket, DATE_FORMAT(tanggal, '%Y-%m-%d') AS tanggal from antrian
+where tanggal = current_date() and panggil = 0 and loket = ?;
 
 -- name: SelesaiAntrian :exec
 update antrian set panggil=1 where id = ?;

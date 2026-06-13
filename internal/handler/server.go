@@ -9,19 +9,22 @@ import (
 
 	"github.com/coder/websocket"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
 )
 
 type Server struct {
 	mux     *chi.Mux
 	db      *db.Queries
+	token   *jwtauth.JWTAuth
 	mu      sync.Mutex
 	clients map[*websocket.Conn]bool
 }
 
-func NewServer(db *db.Queries) *Server {
+func NewServer(db *db.Queries, token *jwtauth.JWTAuth) *Server {
 	return &Server{
 		mux:     chi.NewRouter(),
 		db:      db,
+		token:   token,
 		clients: make(map[*websocket.Conn]bool),
 	}
 }

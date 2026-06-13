@@ -1,6 +1,8 @@
 <script setup>
-import { onMounted, ref, reactive } from "vue";
+import { onMounted, ref, reactive, nextTick } from "vue";
 import useWebSocket from "../utils/socket.js";
+import { useRouter } from "vue-router";
+import { get } from "../utils/api.js";
 
 let synth = SpeechSynthesis;
 
@@ -8,21 +10,33 @@ const socket = ref(null);
 
 const allLoket = reactive([]);
 
+let isAuth = ref(false);
+const router = useRouter();
+
 onMounted(async () => {
+    const [res, err] = await get("auth");
+    if (err) {
+        console.log(err.message);
+        router.replace({ path: "/login" });
+        await nextTick();
+        return;
+    }
+    isAuth.value = true;
+
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
         synth = window.speechSynthesis;
     }
 
-    const [res, err] = await useWebSocket(socket, onMessage)
+    const [wsRes, wsErr] = await useWebSocket(socket, onMessage)
         .then((res) => [res, null])
         .catch((err) => [null, err]);
 
-    if (err) {
-        console.log(err);
+    if (wsErr) {
+        console.log(wsErr.message);
         return;
     }
 
-    socket.value = res;
+    socket.value = wsRes;
 });
 
 function onMessage(message) {
@@ -56,7 +70,7 @@ function speak(text) {
 </script>
 
 <template>
-    <main class="flex justify-center items-center">
+    <main class="flex justify-center items-center" v-if="isAuth">
         <div class="grid grid-cols-3 gap-4">
             <div class="border p-4" v-for="item in allLoket">
                 <p class="text-center font-semibold mb-2">

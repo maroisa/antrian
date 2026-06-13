@@ -1,81 +1,111 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
 import AntrianHeader from "../components/AntrianHeader.vue";
-import { hasDipanggil, lastLoket } from "../utils/state";
-import { SpeakerWaveIcon } from "@heroicons/vue/24/outline";
-import { CheckBadgeIcon } from "@heroicons/vue/24/outline";
+import { nextTick, onMounted, ref } from "vue";
 import { get } from "../utils/api";
+import { useRouter } from "vue-router";
 
-const isLoading = ref(true);
+let loket = ref(1);
+let synth = SpeechSynthesis;
+let data = ref([]);
 
-const loketData = reactive([]);
+let isAuth = ref(false);
+const router = useRouter();
 
-onMounted(() => {
-    if (lastLoket.value != 0) {
-        refresh(lastLoket.value);
-    }
-});
-
-async function refresh(loketID) {
-    const [res, err] = await get("loket", loketID);
+onMounted(async () => {
+    const [res, err] = await get("auth");
     if (err) {
-        console.log(err);
+        console.log(err.message);
+        router.replace({ path: "/login" });
+        await nextTick();
         return;
     }
 
-    const json = await res.json();
-    lastLoket.value = loketID;
-    Object.assign(loketData, json ? json : []);
+    isAuth.value = true;
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        synth = window.speechSynthesis;
+    }
+
+    refresh();
+});
+
+async function refresh() {
+    const [listAntrian, listAntrianErr] = await get(`loket/${loket.value}`);
+    const listAntrianJson = await listAntrian.json();
+    data.value = listAntrianJson;
 }
 
-async function handleAntrian(action, antrianItem) {
-    if (action == "panggil") {
-        const [res, err] = await get("antrian", antrianItem.ID, "panggil");
-        if (err) console.log(err);
-
-        hasDipanggil.value = true;
-    } else if (action == "selesai") {
-        const [res, err] = await get("antrian", antrianItem.ID, "selesai");
-        if (err) {
-            console.log(err);
-            return;
-        }
-
-        const json = await res.json();
-        alert("Antrian no. urut " + antrianItem.Urut + " telah selesai");
-        refresh(lastLoket.value);
-        hasDipanggil.value = false;
+function speak(value1, value2) {
+    if (!synth) return;
+    synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(
+        "Antrian nomor " + value1 + " silahkan ke loket " + value2,
+    );
+    const idVoice = synth
+        .getVoices()
+        .find((voice) => voice.lang.startsWith("id"));
+    if (idVoice) {
+        utterance.voice = idVoice;
+    } else {
+        utterance.lang = "id-ID";
     }
+
+    // utterance.onstart = () => setIsSpeaking(true);
+    // utterance.onend = () => setIsSpeaking(false);
+    // utterance.onerror = () => setIsSpeaking(false);
+
+    console.log("Synth:", synth);
+    console.log("Voice:", idVoice);
+    synth.speak(utterance);
+}
+
+async function mintaAntrian() {
+    const [res, err] = await get("antrian", "minta");
+
+    const json = await res.json();
+
+    const [antrianRes, antrianErr] = await get(
+        `antrian/ambil/${loket.value}/${json.ID}`,
+    );
+
+    const antrianJson = await antrianRes.json();
+    speak(json.Urut, loket.value);
+    refresh();
+}
+
+async function selesaiAntrian(id) {
+    const [res, err] = await get(`antrian/${id}/selesai`);
+    refresh();
+    console.log(res);
 }
 </script>
 
 <template>
-    <AntrianHeader />
-    <main class="p-4 w-full max-w-4xl mx-auto">
-        <select
-            class="select mb-10"
-            v-on:change="
-                (e) => {
-                    loketID = e.target.value;
-                    refresh(loketID);
-                    isLoading = false;
-                }
-            "
-        >
-            <option disabled :selected="lastLoket == 0">Pilih loket...</option>
-            <template v-for="v in Array(1, 2, 3, 4, 5, 6)">
-                <option :selected="lastLoket == v" :value="v">
-                    Loket {{ v }}
-                </option>
-            </template>
-        </select>
-        <div class="overflow-auto">
-            <template v-if="!isLoading && loketData.length <= 0">
-                <p class="flex mb-4 justify-center items-center italic text-xl">
-                    Tidak ada antrian di Loket {{ loketID }}
-                </p>
-            </template>
-            <table v-else class="table table-zebra">
+    <template v-if="isAuth">
+        <AntrianHeader />
+        <main class="p-4 max-w-4xl mx-auto">
+            <div class="flex justify-end items-center">
+                <select
+                    class="select"
+                    v-on:change="
+                        (e) => {
+                            loket = e.target.value;
+                            refresh();
+                        }
+                    "
+                >
+                    <option value="1">Loket 1</option>
+                    <option value="2">Loket 2</option>
+                    <option value="3">Loket 3</option>
+                    <option value="4">Loket 4</option>
+                </select>
+                <button class="btn btn-primary m-4" @click="mintaAntrian">
+                    Panggil
+                </button>
+            </div>
+            <table
+                class="table table-zebra border-collapse border-black text-lg"
+            >
                 <thead>
                     <tr>
                         <th>No. Urut</th>
@@ -83,34 +113,25 @@ async function handleAntrian(action, antrianItem) {
                     </tr>
                 </thead>
                 <tbody>
-                    <template v-if="loketData.length">
-                        <tr>
-                            <td>{{ loketData[0].Urut }}</td>
-                            <td class="flex gap-4">
-                                <button
-                                    class="btn btn-info"
-                                    @click="
-                                        handleAntrian('panggil', loketData[0])
-                                    "
-                                >
-                                    <SpeakerWaveIcon class="size-6" />
-                                    <span>Panggil</span>
-                                </button>
-                                <button
-                                    @click="
-                                        handleAntrian('selesai', loketData[0])
-                                    "
-                                    class="btn btn-success"
-                                    :disabled="!hasDipanggil"
-                                >
-                                    <CheckBadgeIcon class="size-6" />
-                                    <span>Selesai</span>
-                                </button>
-                            </td>
-                        </tr>
-                    </template>
+                    <tr v-for="item in data">
+                        <td>{{ item.Urut }}</td>
+                        <td class="flex gap-2">
+                            <button
+                                @click="() => speak(item.Urut, loket)"
+                                class="btn btn-primary"
+                            >
+                                Panggil Ulang
+                            </button>
+                            <button
+                                @click="() => selesaiAntrian(item.ID)"
+                                class="btn btn-success"
+                            >
+                                Selesai
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
-        </div>
-    </main>
+        </main>
+    </template>
 </template>

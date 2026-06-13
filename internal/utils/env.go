@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -13,4 +14,12 @@ func GetPort() string {
 	}
 
 	return ":" + port
+}
+
+func GetSecret() string {
+	secret := os.Getenv("SECRET")
+	if secret == "" {
+		log.Fatalln("SECRET tidak boleh kosong")
+	}
+	return secret
 }

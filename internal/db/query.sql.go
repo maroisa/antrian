@@ -10,6 +10,34 @@ import (
 	"database/sql"
 )
 
+const ambilAntrian = `-- name: AmbilAntrian :exec
+update antrian set loket = ? where id = ?
+`
+
+type AmbilAntrianParams struct {
+	Loket int32
+	ID    int32
+}
+
+func (q *Queries) AmbilAntrian(ctx context.Context, arg AmbilAntrianParams) error {
+	_, err := q.db.ExecContext(ctx, ambilAntrian, arg.Loket, arg.ID)
+	return err
+}
+
+const createUser = `-- name: CreateUser :exec
+insert into user (nama, password) values (?, ?)
+`
+
+type CreateUserParams struct {
+	Nama     string
+	Password string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
+	_, err := q.db.ExecContext(ctx, createUser, arg.Nama, arg.Password)
+	return err
+}
+
 const getAllLoket = `-- name: GetAllLoket :many
 
 select max(urut) as urut, loket from antrian where tanggal = current_date() and panggil = 0 group by loket
@@ -68,6 +96,17 @@ func (q *Queries) GetAntrian(ctx context.Context, id int32) (GetAntrianRow, erro
 	return i, err
 }
 
+const getUser = `-- name: GetUser :one
+select id, nama, password from user where nama = ? limit 1
+`
+
+func (q *Queries) GetUser(ctx context.Context, nama string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, nama)
+	var i User
+	err := row.Scan(&i.ID, &i.Nama, &i.Password)
+	return i, err
+}
+
 const insertAntrian = `-- name: InsertAntrian :execresult
 insert into antrian (urut)
 select
@@ -80,15 +119,15 @@ func (q *Queries) InsertAntrian(ctx context.Context) (sql.Result, error) {
 }
 
 const listAntrian = `-- name: ListAntrian :many
-select id,loket, urut from antrian
-where tanggal = current_date() and loket = ? and panggil = 0
-order by urut
+select id, urut, loket, DATE_FORMAT(tanggal, '%Y-%m-%d') AS tanggal from antrian
+where tanggal = current_date() and panggil = 0 and loket = ?
 `
 
 type ListAntrianRow struct {
-	ID    int32
-	Loket int32
-	Urut  int32
+	ID      int32
+	Urut    int32
+	Loket   int32
+	Tanggal string
 }
 
 func (q *Queries) ListAntrian(ctx context.Context, loket int32) ([]ListAntrianRow, error) {
@@ -100,7 +139,12 @@ func (q *Queries) ListAntrian(ctx context.Context, loket int32) ([]ListAntrianRo
 	var items []ListAntrianRow
 	for rows.Next() {
 		var i ListAntrianRow
-		if err := rows.Scan(&i.ID, &i.Loket, &i.Urut); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Urut,
+			&i.Loket,
+			&i.Tanggal,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -112,6 +156,30 @@ func (q *Queries) ListAntrian(ctx context.Context, loket int32) ([]ListAntrianRo
 		return nil, err
 	}
 	return items, nil
+}
+
+const mintaAntrian = `-- name: MintaAntrian :one
+select id, urut, loket, DATE_FORMAT(tanggal, '%Y-%m-%d') AS tanggal from antrian
+where tanggal = current_date() and panggil = 0 and loket = 0 order by id limit 1
+`
+
+type MintaAntrianRow struct {
+	ID      int32
+	Urut    int32
+	Loket   int32
+	Tanggal string
+}
+
+func (q *Queries) MintaAntrian(ctx context.Context) (MintaAntrianRow, error) {
+	row := q.db.QueryRowContext(ctx, mintaAntrian)
+	var i MintaAntrianRow
+	err := row.Scan(
+		&i.ID,
+		&i.Urut,
+		&i.Loket,
+		&i.Tanggal,
+	)
+	return i, err
 }
 
 const selesaiAntrian = `-- name: SelesaiAntrian :exec

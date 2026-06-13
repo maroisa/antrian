@@ -1,9 +1,9 @@
 @import "tailwindcss";
 @plugin "daisyui" {
-    themes: business --default;
+    themes: corporate --default;
 }
 
-@source inline("{btn,bg,text}-{primary,secondary,neutral}");
+@source inline("{btn,bg,text}-{primary,secondary,accent}");
 
 @layer base {
     html,

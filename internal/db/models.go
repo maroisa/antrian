@@ -15,3 +15,9 @@ type Antrian struct {
 	Urut    int32
 	Panggil int32
 }
+
+type User struct {
+	ID       int32
+	Nama     string
+	Password string
+}
