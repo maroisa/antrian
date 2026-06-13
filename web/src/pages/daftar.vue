@@ -28,7 +28,7 @@ async function register(event) {
                 <option disabled :selected="lastLoket == 0">
                     Pilih loket...
                 </option>
-                <template v-for="v in Array(1, 2, 3, 4)">
+                <template v-for="v in Array(1, 2, 3, 4, 5, 6)">
                     <option :selected="lastLoket == v" :value="v">
                         Loket {{ v }}
                     </option>

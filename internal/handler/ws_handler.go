@@ -24,10 +24,18 @@ func (s *Server) WSHandler(w http.ResponseWriter, r *http.Request) {
 	s.clients[c] = true
 	s.mu.Unlock()
 
-	log.Println("user baru terkoneksi")
+	log.Println("user connected")
 
 	ctx := r.Context()
+
+	allLoket, err := s.db.GetAllLoket(ctx)
+	s.Broadcast(ctx, map[string]interface{}{
+		"data": allLoket,
+	})
+
 	<-ctx.Done()
+
+	log.Println("user disconnected")
 
 	s.mu.Lock()
 	delete(s.clients, c)

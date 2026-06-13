@@ -1,10 +1,12 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, reactive } from "vue";
 import useWebSocket from "../utils/socket.js";
 
 let synth = SpeechSynthesis;
 
 const socket = ref(null);
+
+const allLoket = reactive([]);
 
 onMounted(async () => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -25,7 +27,8 @@ onMounted(async () => {
 
 function onMessage(message) {
     console.log(message);
-    speak("Nomor urut " + message.Urut + " di loket " + message.Loket);
+    Object.assign(allLoket, message.data ? message.data : []);
+    // speak("Nomor urut " + message.Urut + " di loket " + message.Loket);
 }
 
 function speak(text) {
@@ -55,8 +58,11 @@ function speak(text) {
 <template>
     <main class="flex justify-center items-center">
         <div class="grid grid-cols-3 gap-4">
-            <div class="border p-4" v-for="item in Array(1, 2, 3, 4, 5, 6)">
-                <p>Loket {{ item }}</p>
+            <div class="border p-4" v-for="item in allLoket">
+                <p class="text-center font-semibold mb-2">
+                    Loket {{ item.Loket }}
+                </p>
+                <p>No. Urut {{ item.Urut }}</p>
             </div>
         </div>
     </main>

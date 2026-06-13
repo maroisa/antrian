@@ -61,12 +61,17 @@ func (s *Server) AntrianDipanggil(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	res, err := s.db.GetAntrian(r.Context(), int32(paramID))
+	antrian, err := s.db.GetAntrian(r.Context(), int32(paramID))
 	if err != nil {
 		panic(err)
 	}
 
-	s.Broadcast(r.Context(), res)
+	allLoket, err := s.db.GetAllLoket(r.Context())
+
+	s.Broadcast(r.Context(), map[string]interface{}{
+		"data":       allLoket,
+		"terpanggil": antrian,
+	})
 }
 
 func (s *Server) AntrianSelesai(w http.ResponseWriter, r *http.Request) {

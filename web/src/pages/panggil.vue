@@ -47,12 +47,6 @@ async function handleAntrian(action, antrianItem) {
         hasDipanggil.value = false;
     }
 }
-
-async function getLoket(loketID) {
-    refresh(loketID).then(() => {
-        isLoading.value = false;
-    });
-}
 </script>
 
 <template>
@@ -62,13 +56,14 @@ async function getLoket(loketID) {
             class="select mb-10"
             v-on:change="
                 (e) => {
-                    getLoket(e.target.value);
                     loketID = e.target.value;
+                    refresh(loketID);
+                    isLoading = false;
                 }
             "
         >
             <option disabled :selected="lastLoket == 0">Pilih loket...</option>
-            <template v-for="v in Array(1, 2, 3, 4)">
+            <template v-for="v in Array(1, 2, 3, 4, 5, 6)">
                 <option :selected="lastLoket == v" :value="v">
                     Loket {{ v }}
                 </option>

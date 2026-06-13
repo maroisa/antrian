@@ -7,6 +7,9 @@ from antrian
 where date(tanggal) = current_date()
   and antrian.loket = sqlc.arg(loket);
 
+-- name: GetAllLoket :many
+select max(urut) as urut, loket from antrian where tanggal = current_date() and panggil = 0 group by loket;
+
 -- name: GetAntrian :one
 select id, loket, urut from antrian
 where tanggal = current_date() and id = ?;

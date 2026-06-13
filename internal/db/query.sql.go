@@ -9,6 +9,38 @@ import (
 	"context"
 )
 
+const getAllLoket = `-- name: GetAllLoket :many
+select max(urut) as urut, loket from antrian where tanggal = current_date() and panggil = 0 group by loket
+`
+
+type GetAllLoketRow struct {
+	Urut  interface{}
+	Loket int32
+}
+
+func (q *Queries) GetAllLoket(ctx context.Context) ([]GetAllLoketRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAllLoket)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllLoketRow
+	for rows.Next() {
+		var i GetAllLoketRow
+		if err := rows.Scan(&i.Urut, &i.Loket); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAntrian = `-- name: GetAntrian :one
 select id, loket, urut from antrian
 where tanggal = current_date() and id = ?
