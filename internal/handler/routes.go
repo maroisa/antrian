@@ -14,8 +14,7 @@ func (s *Server) Routes() {
 	})
 
 	s.mux.Get("/ws", s.WSHandler)
-
-	s.mux.Get("/loket/{id:[0-9]+}/baru", s.NewAntrian)
+	s.mux.Get("/loket/baru", s.NewAntrian)
 	s.mux.Get("/loket/{id:[0-9]+}", s.GetAntrian)
 	s.mux.Get("/antrian/{id:[0-9]+}/selesai", s.AntrianSelesai)
 	s.mux.Get("/antrian/{id:[0-9]+}/panggil", s.AntrianDipanggil)
