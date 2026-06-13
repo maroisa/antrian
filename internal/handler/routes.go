@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"antrian/internal/db"
 	"net/http"
 	"strconv"
 
@@ -37,21 +36,22 @@ func (s *Server) GetAntrian(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) NewAntrian(w http.ResponseWriter, r *http.Request) {
-	loketID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	res, err := s.db.InsertAntrian(r.Context())
 	if err != nil {
 		panic(err)
 	}
 
-	err = s.db.InsertAntrian(r.Context(), db.InsertAntrianParams{
-		Loket: int32(loketID),
-	})
+	id, err := res.LastInsertId()
 	if err != nil {
 		panic(err)
 	}
 
-	render.JSON(w, r, map[string]string{
-		"message": "Berhasil membuat antrian baru",
-	})
+	data, err := s.db.GetAntrian(r.Context(), int32(id))
+	if err != nil {
+		panic(err)
+	}
+
+	render.JSON(w, r, data)
 }
 
 func (s *Server) AntrianDipanggil(w http.ResponseWriter, r *http.Request) {

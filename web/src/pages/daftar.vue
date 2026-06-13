@@ -1,8 +1,12 @@
 <script setup>
-import { PrinterIcon } from "@heroicons/vue/24/outline";
 import AntrianHeader from "../components/AntrianHeader.vue";
+import Cetak from "../components/Cetak.vue";
+import { PrinterIcon } from "@heroicons/vue/24/outline";
 import { lastLoket } from "../utils/state.js";
 import { get } from "../utils/api.js";
+import { reactive, ref } from "vue";
+
+let newAntrian = reactive({});
 
 async function register(event) {
     event.preventDefault();
@@ -16,25 +20,20 @@ async function register(event) {
         return;
     }
 
-    alert("Antrian baru telah terdaftar pada loket " + loket);
+    const json = await res.json();
+
+    Object.assign(newAntrian, json);
 }
 </script>
 
 <template>
     <AntrianHeader />
+    <template v-if="Object.keys(newAntrian).length">
+        <Cetak :urut="newAntrian.Urut" :tanggal="newAntrian.Tanggal" />
+    </template>
     <main class="flex justify-center items-center">
         <form class="w-full max-w-sm" v-on:submit="register">
-            <select name="loket" class="select w-full mb-4">
-                <option disabled :selected="lastLoket == 0">
-                    Pilih loket...
-                </option>
-                <template v-for="v in Array(1, 2, 3, 4, 5, 6)">
-                    <option :selected="lastLoket == v" :value="v">
-                        Loket {{ v }}
-                    </option>
-                </template>
-            </select>
-            <button class="btn btn-primary w-full p-4">
+            <button class="btn btn-primary w-full p-4" @click="">
                 <PrinterIcon class="size-6" />
                 <span>Cetak Nomor</span>
             </button>

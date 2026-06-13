@@ -7,9 +7,11 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const getAllLoket = `-- name: GetAllLoket :many
+
 select max(urut) as urut, loket from antrian where tanggal = current_date() and panggil = 0 group by loket
 `
 
@@ -18,6 +20,7 @@ type GetAllLoketRow struct {
 	Loket int32
 }
 
+// select * from antrian where id = (select last_insert_id()) limit 1;
 func (q *Queries) GetAllLoket(ctx context.Context) ([]GetAllLoketRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAllLoket)
 	if err != nil {
@@ -42,40 +45,38 @@ func (q *Queries) GetAllLoket(ctx context.Context) ([]GetAllLoketRow, error) {
 }
 
 const getAntrian = `-- name: GetAntrian :one
-select id, loket, urut from antrian
+select id, urut, loket, DATE_FORMAT(tanggal, '%Y-%m-%d') AS tanggal from antrian
 where tanggal = current_date() and id = ?
 `
 
 type GetAntrianRow struct {
-	ID    int32
-	Loket int32
-	Urut  int32
+	ID      int32
+	Urut    int32
+	Loket   int32
+	Tanggal string
 }
 
 func (q *Queries) GetAntrian(ctx context.Context, id int32) (GetAntrianRow, error) {
 	row := q.db.QueryRowContext(ctx, getAntrian, id)
 	var i GetAntrianRow
-	err := row.Scan(&i.ID, &i.Loket, &i.Urut)
+	err := row.Scan(
+		&i.ID,
+		&i.Urut,
+		&i.Loket,
+		&i.Tanggal,
+	)
 	return i, err
 }
 
-const insertAntrian = `-- name: InsertAntrian :exec
-insert into antrian (loket, urut)
+const insertAntrian = `-- name: InsertAntrian :execresult
+insert into antrian (urut)
 select
-    ? AS loket,
     ifnull(max(urut),0)+1 as urut
-from antrian
-where date(tanggal) = current_date()
-  and antrian.loket = ?
+from antrian where date(tanggal) = current_date()
 `
 
-type InsertAntrianParams struct {
-	Loket int32
-}
-
-func (q *Queries) InsertAntrian(ctx context.Context, arg InsertAntrianParams) error {
-	_, err := q.db.ExecContext(ctx, insertAntrian, arg.Loket, arg.Loket)
-	return err
+func (q *Queries) InsertAntrian(ctx context.Context) (sql.Result, error) {
+	return q.db.ExecContext(ctx, insertAntrian)
 }
 
 const listAntrian = `-- name: ListAntrian :many
