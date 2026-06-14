@@ -1,12 +1,34 @@
 package handler
 
 import (
+	"antrian/internal/db"
 	"log"
 	"net/http"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
+	nama := r.FormValue("nama")
+	password := r.FormValue("password")
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+		return
+	}
+
+	err = s.db.CreateUser(r.Context(), db.CreateUserParams{
+		Nama:     nama,
+		Password: string(hashedPassword),
+	})
+
+	if err != nil {
+		panic(err)
+	}
+}
 
 func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
 	nama := r.FormValue("nama")

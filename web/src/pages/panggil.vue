@@ -98,6 +98,10 @@ async function selesaiAntrian(id) {
                     <option value="2">Loket 2</option>
                     <option value="3">Loket 3</option>
                     <option value="4">Loket 4</option>
+                    <option value="5">Loket 5</option>
+                    <option value="6">Loket 6</option>
+                    <option value="7">Loket 7</option>
+                    <option value="8">Loket 8</option>
                 </select>
                 <button class="btn btn-primary m-4" @click="mintaAntrian">
                     Panggil

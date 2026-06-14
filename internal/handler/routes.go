@@ -2,43 +2,23 @@ package handler
 
 import (
 	"antrian/internal/db"
-	"log"
+	"antrian/web"
+	"io"
+	"io/fs"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/go-chi/render"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *Server) Routes() {
-	s.mux.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("OK"))
-	})
-
 	s.mux.Get("/ws", s.WSHandler)
 	s.mux.Post("/login", s.Login)
-	s.mux.Post("/register", func(w http.ResponseWriter, r *http.Request) {
-		nama := r.FormValue("nama")
-		password := r.FormValue("password")
-
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, "Failed to hash password", http.StatusInternalServerError)
-			return
-		}
-
-		err = s.db.CreateUser(r.Context(), db.CreateUserParams{
-			Nama:     nama,
-			Password: string(hashedPassword),
-		})
-
-		if err != nil {
-			panic(err)
-		}
-	})
+	s.mux.Post("/register", s.Register)
 
 	s.mux.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(s.token))
@@ -50,6 +30,35 @@ func (s *Server) Routes() {
 		r.Get("/antrian/ambil/{loketID}/{antrianID}", s.AmbilAntrian)
 		r.Get("/loket/{id:[0-9]+}", s.GetAntrian)
 		r.Get("/antrian/{id:[0-9]+}/selesai", s.AntrianSelesai)
+	})
+
+	distFS, err := fs.Sub(web.EmbeddedFiles, "dist")
+	if err != nil {
+		panic("Gagal memuat frontend")
+	}
+
+	fileServer := http.FileServer(http.FS(distFS))
+	s.mux.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/")
+
+		_, err := distFS.Open(path)
+		if os.IsNotExist(err) && path != "" {
+			indexFile, _ := distFS.Open("index.html")
+			defer indexFile.Close()
+
+			seeker, ok := indexFile.(io.ReadSeeker)
+			if !ok {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			stat, _ := indexFile.Stat()
+
+			http.ServeContent(w, r, "index.html", stat.ModTime(), seeker)
+			return
+		}
+
+		fileServer.ServeHTTP(w, r)
 	})
 }
 
