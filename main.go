@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	db := db.NewConnection("rin@tcp(127.0.0.1:3306)/antrian")
+	db := db.NewConnection("maronn@tcp(127.0.0.1:3306)/antrian")
 
 	secret := utils.GetSecret()
 	tokenAuth := jwtauth.New("HS256", []byte(secret), nil)

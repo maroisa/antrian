@@ -15,11 +15,5 @@ const NAV = [
         color: "accent",
         icon: PlusCircleIcon,
     },
-    {
-        to: "/view",
-        name: "Tampilan",
-        color: "secondary",
-        icon: ComputerDesktopIcon,
-    },
 ];
 export default NAV;
