@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+    themes: corporate --default;
+}
+
+@source inline("{btn,bg,text}-{primary,secondary,accent}");
+
+@layer base {
+    html,
+    body,
+    #app,
+    main,
+    .hw-full {
+        @apply w-full h-full;
+    }
+
+    #app {
+        @apply flex flex-col;
+    }
+}
+
+@layer components {
+    .nav-link.router-link-active {
+        @apply btn-primary border-2;
+    }
+}

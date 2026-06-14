@@ -1,14 +1,9 @@
 import { defineConfig } from "vite";
-import solidPlugin from "vite-plugin-solid";
-import devtools from "solid-devtools/vite";
+import vue from "@vitejs/plugin-vue";
+import VueRouter from "vue-router/vite";
 import tailwindcss from "@tailwindcss/vite";
 
+// https://vite.dev/config/
 export default defineConfig({
-    plugins: [devtools(), solidPlugin(), tailwindcss()],
-    server: {
-        port: 5173,
-    },
-    build: {
-        target: "esnext",
-    },
+    plugins: [VueRouter(), vue(), tailwindcss()],
 });

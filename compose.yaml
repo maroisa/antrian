@@ -1,7 +1,7 @@
 services:
-  app:
-    build: .
-    entrypoint: /app/antrian
+  web:
+    image: nginx:1.30-alpine
+    volumes:
+      - ./web/:/usr/share/nginx/html
     ports:
-      - 3000:3000
-    restart: unless-stopped
+      - 8080:80

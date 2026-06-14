@@ -1,4 +1,4 @@
-package internal
+package handler
 
 import (
 	"context"
@@ -24,39 +24,30 @@ func (s *Server) WSHandler(w http.ResponseWriter, r *http.Request) {
 	s.clients[c] = true
 	s.mu.Unlock()
 
-	log.Println("user baru terkoneksi")
+	log.Println("user connected")
 
 	ctx := r.Context()
-	s.Broadcast(ctx)
 
-	for {
-		msgType, msg, err := c.Read(ctx)
-		if err != nil {
-			log.Printf("Error membaca pesan: %v", err)
-			break
-		}
+	allLoket, err := s.db.GetAllLoket(ctx)
+	s.Broadcast(ctx, map[string]interface{}{
+		"data": allLoket,
+	})
 
-		if msgType != websocket.MessageText {
-			log.Println("Permintaan tidak valid!")
-			http.Error(w, "Permintaan tidak valid!", http.StatusInternalServerError)
-			continue
-		}
+	<-ctx.Done()
 
-		s.data.Tambah(string(msg))
-		s.Broadcast(ctx)
-	}
+	log.Println("user disconnected")
 
 	s.mu.Lock()
 	delete(s.clients, c)
 	s.mu.Unlock()
 }
 
-func (s *Server) Broadcast(ctx context.Context) {
+func (s *Server) Broadcast(ctx context.Context, msg any) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	for client := range s.clients {
-		err := wsjson.Write(ctx, client, s.data)
+		err := wsjson.Write(ctx, client, msg)
 		if err != nil {
 			log.Println(err)
 			client.Close(websocket.StatusInternalError, "Gagal menerima pesan")
