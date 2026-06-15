@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	db := db.NewConnection("maronn@tcp(127.0.0.1:3306)/antrian")
+	db := db.NewConnection(utils.GetDBURL())
 
 	secret := utils.GetSecret()
 	tokenAuth := jwtauth.New("HS256", []byte(secret), nil)
@@ -21,7 +21,7 @@ func main() {
 	srv.Use(middleware.Logger)
 	srv.Use(middleware.Recoverer)
 	srv.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:5173"},
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:5173", "http://103.175.217.164:3000"},
 		AllowedMethods:   []string{"GET", "POST"},
 		AllowCredentials: true,
 	}))

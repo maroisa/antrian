@@ -46,16 +46,16 @@ async function register(event) {
 </script>
 
 <template>
+    <AntrianHeader />
+    <div class="p-2" id="printable-area">
+        <p class="text-center text-2xl font-bold">SPMB</p>
+        <p class="text-center text-xl font-bold">SMK Negeri 7 Surakarta</p>
+        <p class="text-center w-full">Tanggal {{ newAntrian.Tanggal }}</p>
+        <h1 class="text-center font-bold text-7xl">
+            {{ newAntrian.Urut }}
+        </h1>
+    </div>
     <template v-if="isAuth">
-        <AntrianHeader />
-        <div class="p-2" id="printable-area">
-            <p class="text-center text-2xl font-bold">SPMB</p>
-            <p class="text-center text-xl font-bold">SMK Negeri 7 Surakarta</p>
-            <p class="text-center w-full">Tanggal {{ newAntrian.Tanggal }}</p>
-            <h1 class="text-center font-bold text-7xl">
-                {{ newAntrian.Urut }}
-            </h1>
-        </div>
         <main class="flex justify-center items-center">
             <form class="w-full max-w-sm" v-on:submit="register">
                 <button

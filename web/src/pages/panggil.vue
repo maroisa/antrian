@@ -3,12 +3,16 @@ import AntrianHeader from "../components/AntrianHeader.vue";
 import { nextTick, onMounted, ref } from "vue";
 import { get } from "../utils/api";
 import { useRouter } from "vue-router";
+import { SpeakerWaveIcon } from "@heroicons/vue/24/outline";
+import { SpeakerXMarkIcon } from "@heroicons/vue/24/outline";
 
 let loket = ref(1);
 let synth = SpeechSynthesis;
 let data = ref([]);
 
 let isAuth = ref(false);
+let speakerActive = ref(true);
+
 const router = useRouter();
 
 onMounted(async () => {
@@ -50,19 +54,21 @@ function speak(value1, value2) {
         utterance.lang = "id-ID";
     }
 
-    // utterance.onstart = () => setIsSpeaking(true);
-    // utterance.onend = () => setIsSpeaking(false);
-    // utterance.onerror = () => setIsSpeaking(false);
-
     console.log("Synth:", synth);
     console.log("Voice:", idVoice);
-    synth.speak(utterance);
+    if (speakerActive.value) {
+        synth.speak(utterance);
+    }
 }
 
 async function mintaAntrian() {
     const [res, err] = await get("antrian", "minta");
 
     const json = await res.json();
+    if (json.ID == 0) {
+        alert("Tidak ada antrian baru");
+        return;
+    }
 
     const [antrianRes, antrianErr] = await get(
         `antrian/ambil/${loket.value}/${json.ID}`,
@@ -81,31 +87,52 @@ async function selesaiAntrian(id) {
 </script>
 
 <template>
+    <AntrianHeader />
     <template v-if="isAuth">
-        <AntrianHeader />
         <main class="p-4 max-w-4xl mx-auto">
-            <div class="flex justify-end items-center">
-                <select
-                    class="select"
-                    v-on:change="
-                        (e) => {
-                            loket = e.target.value;
-                            refresh();
+            <div class="flex items-center justify-between w-full gap-4">
+                <button
+                    v-if="speakerActive"
+                    class="btn btn-primary"
+                    v-on:click="
+                        () => {
+                            speakerActive = !speakerActive;
+                            synth.cancel();
                         }
                     "
                 >
-                    <option value="1">Loket 1</option>
-                    <option value="2">Loket 2</option>
-                    <option value="3">Loket 3</option>
-                    <option value="4">Loket 4</option>
-                    <option value="5">Loket 5</option>
-                    <option value="6">Loket 6</option>
-                    <option value="7">Loket 7</option>
-                    <option value="8">Loket 8</option>
-                </select>
-                <button class="btn btn-primary m-4" @click="mintaAntrian">
-                    Panggil
+                    <SpeakerWaveIcon class="size-6" />
                 </button>
+                <button
+                    v-else
+                    class="btn btn-secondary"
+                    v-on:click="() => (speakerActive = !speakerActive)"
+                >
+                    <SpeakerXMarkIcon class="size-6" />
+                </button>
+                <div class="flex items-center w-3xs sm:w-md">
+                    <select
+                        class="select"
+                        v-on:change="
+                            (e) => {
+                                loket = e.target.value;
+                                refresh();
+                            }
+                        "
+                    >
+                        <option value="1">Loket 1</option>
+                        <option value="2">Loket 2</option>
+                        <option value="3">Loket 3</option>
+                        <option value="4">Loket 4</option>
+                        <option value="5">Loket 5</option>
+                        <option value="6">Loket 6</option>
+                        <option value="7">Loket 7</option>
+                        <option value="8">Loket 8</option>
+                    </select>
+                    <button class="btn btn-primary m-4" @click="mintaAntrian">
+                        Panggil
+                    </button>
+                </div>
             </div>
             <table
                 class="table table-zebra border-collapse border-black text-lg"

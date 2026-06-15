@@ -23,3 +23,11 @@ func GetSecret() string {
 	}
 	return secret
 }
+
+func GetDBURL() string {
+	url := os.Getenv("DATABASE_URL")
+	if url == "" {
+		log.Fatalln("DATABASE_URL tidak boleh kosong")
+	}
+	return url
+}

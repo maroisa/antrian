@@ -3,6 +3,7 @@ package handler
 import (
 	"antrian/internal/db"
 	"antrian/web"
+	"database/sql"
 	"io"
 	"io/fs"
 	"net/http"
@@ -112,7 +113,9 @@ func (s *Server) AntrianSelesai(w http.ResponseWriter, r *http.Request) {
 func (s *Server) MintaAntrian(w http.ResponseWriter, r *http.Request) {
 	antrian, err := s.db.MintaAntrian(r.Context())
 	if err != nil {
-		panic(err)
+		if err != sql.ErrNoRows {
+			panic(err)
+		}
 	}
 
 	render.JSON(w, r, antrian)
