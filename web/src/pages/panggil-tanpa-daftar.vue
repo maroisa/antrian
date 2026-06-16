@@ -1,12 +1,27 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import {get} from "../utils/api"
+import AntrianHeader from '../components/AntrianHeader.vue';
 
 let synth = SpeechSynthesis;
+let router = useRouter()
 
+let isAuth = ref(false)
 let angka = ref("")
 let loket = ref()
 
-onMounted(() => {
+onMounted(async() => {
+    const [res, err] = await get("auth");
+    if (err) {
+        console.log(err.message);
+        router.replace({ path: "/login" });
+        await nextTick();
+        return;
+    }
+
+    isAuth.value = true;
+
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
         synth = window.speechSynthesis;
     }
@@ -41,23 +56,26 @@ function speak(value1, value2) {
 </script>
 
 <template>
-    <main class="flex justify-center items-center">
-        <div class="p-4 flex gap-4" >
-            <input v-model="angka" class="input" placeholder="Masukkan angka"></input>
-                <select
-                v-model="loket"
-                    class="select"
-                >
-                    <option value="1">Loket 1</option>
-                    <option value="2">Loket 2</option>
-                    <option value="3">Loket 3</option>
-                    <option value="4">Loket 4</option>
-                    <option value="5">Loket 5</option>
-                    <option value="6">Loket 6</option>
-                    <option value="7">Loket 7</option>
-                    <option value="8">Loket 8</option>
-                </select>
-                <button @click="panggil" class="btn btn-primary">Panggil</button>
-        </div>
-    </main>
+    <AntrianHeader />
+    <template v-if="isAuth">
+        <main class="flex justify-center items-center">
+            <div class="p-4 flex gap-4" >
+                <input v-model="angka" class="input" placeholder="Masukkan angka"></input>
+                    <select
+                    v-model="loket"
+                        class="select"
+                    >
+                        <option value="1">Loket 1</option>
+                        <option value="2">Loket 2</option>
+                        <option value="3">Loket 3</option>
+                        <option value="4">Loket 4</option>
+                        <option value="5">Loket 5</option>
+                        <option value="6">Loket 6</option>
+                        <option value="7">Loket 7</option>
+                        <option value="8">Loket 8</option>
+                    </select>
+                    <button @click="panggil" class="btn btn-primary">Panggil</button>
+            </div>
+        </main>
+    </template>
 </template>
