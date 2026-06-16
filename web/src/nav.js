@@ -4,6 +4,12 @@ import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 
 const NAV = [
     {
+        to: "/panggil-tanpa-daftar",
+        name: "panggil Tanpa Daftar",
+        color: "secondary",
+        icon: SpeakerWaveIcon,
+    },
+    {
         to: "/panggil",
         name: "Panggil",
         color: "primary",
